@@ -118,12 +118,12 @@ if __name__ == '__main__':
     
     dynamic_input = torch.randn(1, 64, 4096)
     static_input = torch.randn(1, 1, 4096)
-    device = torch.device("cuda:0")
+    device = torch.device("cuda:3")
     dynamic_input = dynamic_input.to(device)
     static_input = static_input.to(device)
 
     model_d = Colar_dynamic(4096, 22)
-    model_s = Colar_static(4096, 21, device)
+    model_s = Colar_static(4096, 21, device,'../../../../data/ssd1/zhanghaoran/zhr/thumos14/exemplar.pickle')
     model_d.to(device)
     model_s.to(device)
 

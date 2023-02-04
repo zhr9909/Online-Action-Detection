@@ -103,6 +103,7 @@ def main(args):
     cfg.set_seed(seed)
 
     device = torch.device('cuda:' + str(args.cuda_id))
+    print(str(args.cuda_id))
     model_static = Colar_static(args.input_size, args.numclass, device, args.kmean)
     model_dynamic = Colar_dynamic(args.input_size, args.numclass)
 

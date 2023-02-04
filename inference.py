@@ -11,23 +11,31 @@ from misc import init
 
 
 def evaluate(args):
-    device = torch.device(args.cuda_id)
+    print(type(args.cuda_id))
+    device = torch.device(3)
     model_static = Colar_static(args.input_size, args.numclass, device, args.kmean)
     model_dynamic = Colar_dynamic(args.input_size, args.numclass)
-
-    model_dict = torch.load(args.checkpoint)
+    print('aaaa1')
+    model_dict = torch.load(args.checkpoint, map_location=torch.device(1))
+    print('aaaa2')
+    print(type(model_dict))
+    print(model_dict)
     model_static.load_state_dict(model_dict['model_static'])
-
+    print('aaaa3')
     model_dynamic.load_state_dict(model_dict['model_dynamic'])
-
-    model_dynamic.to(device)
-    model_static.to(device)
-
+    print('bbbb')
+    model_dynamic.to(3)
+    model_static.to(3)
+    print('cccc')
+    #将thumos数据加载，然后对里面顺序加载
     dataset_val = THUMOSDataSet(flag='test', args=args)
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    
+    #将数据分成一个个大小为batch_size的tensor
     data_loader_val = DataLoader(dataset_val, args.batch_size, sampler=sampler_val,
                                  drop_last=False, pin_memory=True, num_workers=args.num_workers)
 
+    #将模型设置成评估模式
     model_dynamic.eval()
     model_static.eval()
 
@@ -71,6 +79,7 @@ def evaluate(args):
 
 if '__main__' == __name__:
     args = init.parse_args()
+    print(type(args.cuda_id))
     with open(args.dataset_file, 'r') as f:
         data_info = json.load(f)['THUMOS']
 

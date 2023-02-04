@@ -26,9 +26,9 @@ def parse_args():
     parser.add_argument('--exp_name', default='ColarTHUMOS14')
 
     # please adjust the path
-    parser.add_argument('--data_root', default='./data/thumos14')
-    parser.add_argument('--dataset_file', type=str, default='./data/thumos14/data_info.json')
-    parser.add_argument('--kmean', type=str, default='./data/thumos14/exemplar.pickle')
+    parser.add_argument('--data_root', default='../../../../data/ssd1/zhanghaoran/zhr/thumos14')
+    parser.add_argument('--dataset_file', type=str, default='../../../../data/ssd1/zhanghaoran/zhr/thumos14/data_info.json')
+    parser.add_argument('--kmean', type=str, default='../../../../data/ssd1/zhanghaoran/zhr/thumos14/exemplar.pickle')
     parser.add_argument('--checkpoint', type=str, default='./checkpoint/THUMOS-TSN-Kinetics.pth')
 
     parser.add_argument('--seed', default=20, type=int)
