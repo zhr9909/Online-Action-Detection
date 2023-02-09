@@ -87,6 +87,7 @@ class Colar_dynamic(nn.Module):
         y_weight = torch.cosine_similarity(value, y_last, dim=1)
         y_weight = F.softmax(y_weight, dim=-1)
         y_weight = y_weight.unsqueeze(1)
+        #输出格式为64个权重值
         return y_weight
 
     def sum(self, value, y_weight):
@@ -100,6 +101,10 @@ class Colar_dynamic(nn.Module):
 
         k = self.conv1_3_k(input)
         v = self.conv1_3_v(input)
+        #运行得到的各个张量大小
+        # input torch.Size([1, 4096, 64])
+        # k torch.Size([1, 1024, 64])
+        # k[:, :, -1:] torch.Size([1, 1024, 1])
         y_weight = self.weight(k, k[:, :, -1:])
         feat1 = self.sum(v, y_weight)
         feat1 = self.opt(feat1)
@@ -115,15 +120,15 @@ class Colar_dynamic(nn.Module):
 
 if __name__ == '__main__':
     import time
-    
+
     dynamic_input = torch.randn(1, 64, 4096)
     static_input = torch.randn(1, 1, 4096)
-    device = torch.device("cuda:3")
+    device = torch.device("cuda:2")
     dynamic_input = dynamic_input.to(device)
     static_input = static_input.to(device)
 
     model_d = Colar_dynamic(4096, 22)
-    model_s = Colar_static(4096, 21, device,'../../../../data/ssd1/zhanghaoran/zhr/thumos14/exemplar.pickle')
+    model_s = Colar_static(4096, 21, device,'../../../../../data/ssd1/zhanghaoran/zhr/thumos14/exemplar.pickle')
     model_d.to(device)
     model_s.to(device)
 
