@@ -8,7 +8,7 @@ import torch.nn.init as init
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 
-
+#设置固定的随机数种子，设置cudnn的一些用于可复现的参数，为了能复现实验结果
 def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -52,7 +52,7 @@ def parse_args():
 
     return args
 
-
+# 对模型的Conv1d层的权值用模型自身的weight初始化
 def weight_init(m):
     if isinstance(m, nn.Conv1d):
         init.kaiming_uniform_(m.weight)
@@ -106,7 +106,7 @@ def is_dist_avail_and_initialized():
         return False
     return True
 
-
+#根据能不能分布式返回进程的序号，默认是0
 def get_rank():
     if not is_dist_avail_and_initialized():
         return 0

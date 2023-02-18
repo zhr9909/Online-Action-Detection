@@ -98,34 +98,41 @@ def evaluate(model_dynamic,
 
 
 def main(args):
+    # 设置本次的log文件
     log_file = backup_code(args.exp_name)
+    # 设置随机数种子，为了实验能复现设置各种参数
     seed = args.seed + cfg.get_rank()
     cfg.set_seed(seed)
 
-    device = torch.device('cuda:' + str(args.cuda_id))
+    device = torch.device('cuda:' + str(2))
     print(str(args.cuda_id))
     model_static = Colar_static(args.input_size, args.numclass, device, args.kmean)
     model_dynamic = Colar_dynamic(args.input_size, args.numclass)
 
+    # 初始化动态和静态模型分支，将weight_init函数添加至模型中,apply加载的函数都会调用，此处用来对模型一些部分初始化
     model_dynamic.apply(cfg.weight_init)
     model_dynamic.to(device)
     model_static.apply(cfg.weight_init)
     model_static.to(device)
 
+    # 设置loss,使用Adam优化器
     criterion = utl.SetCriterion().to(device)
     optimizer = torch.optim.Adam([
         {"params": model_static.parameters()},
         {"params": model_dynamic.parameters()}],
         lr=args.lr, weight_decay=args.weight_decay)
 
+    # 设置用Adam优化器设置学习率，使得每个epoch之后能重新学习
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, args.lr_drop)
 
+    # 加载训练和测试数据集，训练数据随机采样，测试数据顺序采样
     dataset_train = THUMOSDataSet(flag='train', args=args)
     dataset_val = THUMOSDataSet(flag='test', args=args)
 
     sampler_train = torch.utils.data.RandomSampler(dataset_train)
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
-
+    
+    # 为随机采样的训练数据集，按照batch_size的大小划分
     batch_sampler_train = torch.utils.data.BatchSampler(sampler_train, args.batch_size, drop_last=True)
 
     data_loader_train = DataLoader(dataset_train, batch_sampler=batch_sampler_train,
@@ -149,6 +156,11 @@ def main(args):
             data_loader_val, device)
         print('---------------Calculation of the map-----------------')
         Colar_evaluate(test_stats, epoch, args.command, log_file)
+        state = {'model_static':model_static.state_dict(),'model_dynamic':model_dynamic.state_dict()}
+        kkk = './checkpoint/zhr'+str(epoch)+'.pth'
+        torch.save(state,kkk)
+        # torch.save(model_dynamic.state_dict,'./checkpoint/zhr_dynamic.pth')
+
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

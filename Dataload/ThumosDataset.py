@@ -25,9 +25,9 @@ class THUMOSDataSet(Dataset):
     
 
         for session in self.sessions:
-            print("session的值: "+session)
+            # print("session的值: "+session)
             target = target_all[session]['anno']
-            print("target的值: ",target.shape[0],"  ",target.shape[1])
+            # print("target的值: ",target.shape[0],"  ",target.shape[1])
             seed = np.random.randint(self.enc_steps) if self.training else 0
             for start, end in zip(
                     range(seed, target.shape[0], 1),
@@ -38,9 +38,9 @@ class THUMOSDataSet(Dataset):
                     #这一步将test数据集的真实分布（每帧22个类的0/1分布）加载
                     #加载的格式['video_test_0000292', 1, 65, array([[1., 0., 0., ..., 0., 0., 0.],。。。。
                     self.inputs.append([session, start, end, enc_target])
-        print("inputs的值")
-        print(self.inputs[0])
-        print(self.inputs[1])
+        # print("inputs的值")
+        # print(self.inputs[0])
+        # print(self.inputs[1])
         #这一步加载事先用光流法之类的提取出的特征
         self.feature_All = pickle.load(open(osp.join(
             self.pickle_root, 'thumos_all_feature_{}_Kinetics.pickle'.format(self.subnet)), 'rb'))

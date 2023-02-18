@@ -96,10 +96,11 @@ def frame_level_map_n_cap(results):
     cap = sum(all_cls_acp) / len(all_cls_acp)
     return map, all_cls_ap, cap, all_cls_acp
 
-
+#在output文件夹里，把各类main.py等复制一份过去，result.txt存放本次训练的中间log
 def backup_code(exp_name):
     now = datetime.datetime.now()
     time_str = now.strftime("%Y_%m_%d_%H_%M_%S_") + exp_name
+    print('time: ',time_str)
     res_dir = 'output/' + time_str + '/'
     os.makedirs(res_dir)
     log_file = res_dir + 'results.txt'
