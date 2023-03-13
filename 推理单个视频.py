@@ -66,7 +66,7 @@ def evaluate(args):
     camera_inputs = torch.cat((camera_inputs[0].repeat(32,1), camera_inputs), dim=0)
     camera_inputs = torch.cat((camera_inputs, camera_inputs[-1].repeat(32,1)), dim=0)
 
-
+    final_score_list = []
     for i in range(32, camera_inputs.shape[0] - 32):
         start = i - 32
         end = i + 32
@@ -89,6 +89,10 @@ def evaluate(args):
         final_score = dynamic_sorce*0.7+static_sorce*0.3
         final_score = torch.max(final_score,-1).indices[0].item()
         print('最终类别:',final_score)
+        final_score_list.append(final_score)
+    print('长度',len(final_score_list))
+    final_score_list=np.array(final_score_list)
+    np.save('final_score_list.npy',final_score_list) 
 
 
     #camera_inputs是rgb特征和光流特征，enc_target是test或者val数据集的真实类别分布标签
