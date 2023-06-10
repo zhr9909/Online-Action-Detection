@@ -63,8 +63,8 @@ def evaluate(args):
     #print((camera_inputs[0] * 32).shape)
 
     camera_inputs = torch.cat((camera_inputs, motion_inputs), dim=-1)
-    camera_inputs = torch.cat((camera_inputs[0].repeat(32,1), camera_inputs), dim=0)
-    camera_inputs = torch.cat((camera_inputs, camera_inputs[-1].repeat(32,1)), dim=0)
+    camera_inputs = torch.cat((camera_inputs[0].repeat(64,1), camera_inputs), dim=0)
+    # camera_inputs = torch.cat((camera_inputs, camera_inputs[-1].repeat(32,1)), dim=0)
 
     final_score_list = []
     for i in range(32, camera_inputs.shape[0] - 32):

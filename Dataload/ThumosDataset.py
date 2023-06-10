@@ -38,13 +38,17 @@ class THUMOSDataSet(Dataset):
                     #这一步将test数据集的真实分布（每帧22个类的0/1分布）加载
                     #加载的格式['video_test_0000292', 1, 65, array([[1., 0., 0., ..., 0., 0., 0.],。。。。
                     self.inputs.append([session, start, end, enc_target])
+
+
         # print("inputs的值")
         # print(self.inputs[0])
         # print(self.inputs[1])
-        #这一步加载事先用光流法之类的提取出的特征
+        #这一步加载事先用图像特征和光流法特征
+        # 特征和帧的总数是1:6的关系，图像特征为2048维度，光流特征为2048维度，加在一起变成4096维度
         self.feature_All = pickle.load(open(osp.join(
             self.pickle_root, 'thumos_all_feature_{}_Kinetics.pickle'.format(self.subnet)), 'rb'))
         print(osp.join(self.pickle_root, 'thumos_all_feature_{}_Kinetics.pickle'.format(self.subnet)))
+
 
     def __getitem__(self, index):
         session, start, end, enc_target = self.inputs[index]

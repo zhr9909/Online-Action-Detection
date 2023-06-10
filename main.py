@@ -157,9 +157,8 @@ def main(args):
         print('---------------Calculation of the map-----------------')
         Colar_evaluate(test_stats, epoch, args.command, log_file)
         state = {'model_static':model_static.state_dict(),'model_dynamic':model_dynamic.state_dict()}
-        kkk = './checkpoint/zhr'+str(epoch)+'.pth'
+        kkk = './checkpoint/zhr_'+str(epoch)+'.pth'
         torch.save(state,kkk)
-        # torch.save(model_dynamic.state_dict,'./checkpoint/zhr_dynamic.pth')
 
 
     total_time = time.time() - start_time

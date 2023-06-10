@@ -15,10 +15,7 @@ def evaluate(args):
     device = torch.device(2)
     model_static = Colar_static(args.input_size, args.numclass, device, args.kmean)
     model_dynamic = Colar_dynamic(args.input_size, args.numclass)
-    print('aaaa1')
     model_dict = torch.load(args.checkpoint, map_location=torch.device(2))
-    print('aaaa2')
-    print(type(model_dict))
     # print(model_dict)
                     # model_static.load_state_dict(model_dict['model_static'])
                     # print('aaaa3')
@@ -26,11 +23,10 @@ def evaluate(args):
     kkk = torch.load('./checkpoint/zhr1.pth', map_location=torch.device(2))
     model_static.load_state_dict(kkk['model_static'])
     model_dynamic.load_state_dict(kkk['model_dynamic'])
-    print('aaaaaa',type(model_dict))
-    print('bbbb')
+
     model_dynamic.to(2)
     model_static.to(2)
-    print('cccc')
+
     #将thumos数据加载，然后对里面顺序加载
     dataset_val = THUMOSDataSet(flag='test', args=args)
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
@@ -50,12 +46,11 @@ def evaluate(args):
     for camera_inputs, enc_target in data_loader_val:
         inputs = camera_inputs.to(device)
         target_val = enc_target[:, -1:, :21].to(device)
-        if i==0:
-            print('dynamic的输入: ',inputs.shape)
-            print('static的输入: ',inputs[:, -1:, :].shape)
+
         with torch.no_grad():
             # dynamic的输入:  torch.Size([128, 64, 4096])
             # static的输入:  torch.Size([128, 1, 4096])
+            # 经过底下模型之后，dynamic输出为torch.Size([128, 22, 64])，static的输出为torch.Size([128, 21, 1])
             enc_score_dynamic = model_dynamic(inputs)
             enc_score_static = model_static(inputs[:, -1:, :], device)
 
@@ -67,10 +62,17 @@ def evaluate(args):
         enc_score_dynamic = enc_score_dynamic.permute(0, 2, 1)
         enc_score_dynamic = enc_score_dynamic[:, -1:, :21]
 
+        # ======修改过后=====
+        # enc_score_dynamic  torch.Size([128, 1, 21])
+        # enc_score_static  torch.Size([128, 1, 21])
+
         #将动态和静态分支的分支用个比例加起来
         score_val = enc_score_static * 0.3 + enc_score_dynamic * 0.7
         score_val = F.softmax(score_val, dim=-1)
 
+        # 这一步之后变成(128, 21)的shape，注意这已经不是张量了,而是'numpy.ndarray'
+        # 注意这里128，就是指代128帧，每帧的21个类别分数，模型是每次input 128个帧进去，
+        # 然后静态分支对每帧输出21类别，动态分支对每帧的前64个帧输出类别然后取当前这帧
         score_val = score_val.contiguous().view(-1, 21).cpu().numpy()
         target_val = target_val.contiguous().view(-1, 21).cpu().numpy()
         
@@ -82,7 +84,8 @@ def evaluate(args):
 
     score_val_x = np.asarray(score_val_x)
     target_val_x = np.asarray(target_val_x)
-
+    print(score_val_x.shape)
+    print(type(score_val_x))
     all_probs = np.asarray(score_val_x).T
     all_classes = np.asarray(target_val_x).T
     print(all_probs.shape, all_classes.shape)

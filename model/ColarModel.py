@@ -23,11 +23,15 @@ class Colar_static(nn.Module):
             x = torch.from_numpy(x).squeeze().unsqueeze(0)
             self.static_feature.append(x.permute(0, 2, 1))
             self.static_feature[i] = self.static_feature[i].to(device)
+        print('static_feature的大小为: ',len(self.static_feature))
+        print('static_feature每个的形状为: ',self.static_feature[10].shape)
 
     def weight(self, value, y_last):
         y_weight = torch.cosine_similarity(value, y_last, dim=1)
+        # y_weight每个的形状为:  torch.Size([128, 
         y_weight = F.softmax(y_weight, dim=-1)
         y_weight = y_weight.unsqueeze(1)
+        # y_weight改变后的形状为:  torch.Size([128, 1, 10])
         return y_weight
 
     def sum(self, value, y_weight):
@@ -36,6 +40,7 @@ class Colar_static(nn.Module):
         return y_sum
 
     def forward(self, x, device):
+        # x每个的形状为:  torch.Size([128, 1, 4096])
         x = x[:, -1:, :]
         x = x.permute(0, 2, 1)
         k = self.conv1_3_k(x)
@@ -47,6 +52,8 @@ class Colar_static(nn.Module):
 
             Ek = self.conv1_3_Ek(static_feature)
             Ev = self.conv1_3_Ev(static_feature)
+            # k每个的形状为:  torch.Size([128, 1024, 1])
+            # EK每个的形状为:  torch.Size([1, 1024, 10])
 
             weight = self.weight(Ek, k)
             sum = self.sum(Ev, weight)
